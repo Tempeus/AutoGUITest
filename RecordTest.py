@@ -34,18 +34,25 @@ def log_mouse_event(filtered_mouse_events):
 if __name__ == '__main__':
     mouse_events = []
     keyboard_events = []
-    stop_recordKEY = "esc"
+    toggle_recordKEY = "esc"
 
+    keyboard.wait(toggle_recordKEY)
+
+    print("Starting hook for mouse")
     mouse.hook(mouse_listen)
+    print("Starting hook for keyboard")
     keyboard.hook(log_keybd_event)
 
-    keyboard.wait(stop_recordKEY)
+    keyboard.wait(toggle_recordKEY)
+    print("Stop key is pressed")
     mouse.unhook(mouse_listen)
     keyboard.unhook(log_keybd_event)
 
     filtered_mouse_events = []
 
-    #TODO: Scroll wheel
+    # Filtering
+    # TODO: Scroll wheel
+    print("Beginning filter process")
     for index, event in enumerate(mouse_events):
         if (index + 1 < len(mouse_events) and index - 1 >= 0): #Check bounds
             if type(event) == mouse.ButtonEvent: #If the event is a click event - record it
@@ -56,6 +63,7 @@ if __name__ == '__main__':
                 filtered_mouse_events.append(event)
 
     log_mouse_event(filtered_mouse_events)
+    print("Success")
 
     #sort both even list into one big list
-    
+        
