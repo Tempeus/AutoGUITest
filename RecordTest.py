@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     filtered_mouse_events = []
 
-    #Scroll wheel
+    #TODO: Scroll wheel
     for index, event in enumerate(mouse_events):
         if (index + 1 < len(mouse_events) and index - 1 >= 0): #Check bounds
             if type(event) == mouse.ButtonEvent: #If the event is a click event - record it
