@@ -5,6 +5,7 @@
 import ctypes
 from ctypes import wintypes
 import time
+import os
 
 user32 = ctypes.WinDLL('user32', use_last_error=True)
 
@@ -116,10 +117,37 @@ def ClickMouse():
     x = Input(ctypes.c_ulong(0), ii_)
     ctypes.windll.user32.SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
 
+def FilterRapFile(rapfile):
+    f = open("rapfiles/" + rapfile, "r")
+    w = open("rapfiles/temp.txt", "w")
+    lines = f.readlines()
+
+    for index, line in enumerate(lines):
+        if (index + 1 < len(lines) and index >= 0): #Check bounds
+            if "* <XTAGLINE: RAPFILE " in line:
+                w.write(line)
+            elif "BUTTON" in line:
+                if lines[index - 1].find("msgid=WM_MOUSEMOVE") == 1:
+                    w.write(lines[index - 1])
+                w.write(line)
+            elif "KEY" in line:
+                if lines[index - 1].find("msgid=WM_MOUSEMOVE") == 1:
+                    w.write(lines[index - 1])
+                w.write(line)
+
+    f.close()
+    w.close()
+
+    os.replace(w.name, f.name)
+
 if __name__ == "__main__":
-    time.sleep(3)
-    
-    MoveMouse(771,309)
-    ClickMouse()
+    #Find all rapfiles in folder
+    FilterRapFile("test.txt")
+
+    #Attempt to filter
+
+    #Translate and create python function for each test
+
+    #Execute tests
     
 
