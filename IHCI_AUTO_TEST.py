@@ -149,31 +149,40 @@ def TranslateRapFile(rapfile):
             elif(temp[0] == "time"):
                 time = int(temp[1])
     
-        #make sure all variables are assigned to something, else error
-        EVENT_LIST.append(RapEvent(msgid, paramL, paramH, time))
+        if msgid:
+            #make sure all variables are assigned to something, else error
+            EVENT_LIST.append(RapEvent(msgid, paramL, paramH, time))
 
 
 if __name__ == "__main__":
     TranslateRapFile("test.txt")
     systemtime = EVENT_LIST[0].time
     for event in EVENT_LIST:
+        wait_time = (event.time - systemtime) / 1000
         if "WM_LBUTTONDOWN" in event.msgid:
-            time.sleep(event.time - systemtime)
+            print("Wait time: " + str(wait_time))
+            time.sleep(wait_time)
             MoveMouse(event.paramL, event.paramH)
             PressMouse()
             systemtime = event.time
+
         elif "WM_LBUTTONUP" in event.msgid:
-            time.sleep(event.time - systemtime)
+            print("Wait time: " + str(wait_time))
+            time.sleep(wait_time)
             MoveMouse(event.paramL, event.paramH)
             ReleaseMouse()
             systemtime = event.time
+
         elif "WM_KEYDOWN" in event.msgid:
-            time.sleep(event.time - systemtime)
+            print("Wait time: " + str(wait_time))
+            time.sleep(wait_time)
             PressKey(event.paramL)
             systemtime = event.time
+
         elif "WM_KEYUP" in event.msgid:
-            time.sleep(event.time - systemtime)
+            print("Wait time: " + str(wait_time))
+            time.sleep(wait_time)
             ReleaseKey(event.paramL)
             systemtime = event.time
 
-    print("sucess")
+    print("success")
