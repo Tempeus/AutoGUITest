@@ -36,6 +36,16 @@ A = 0x41
 
 PUL = ctypes.POINTER(ctypes.c_ulong)
 
+
+EVENT_LIST = []
+
+class RapEvent:
+    def __init__(self, msgid, paramL, paramH, time):
+        self.msgid = msgid
+        self.paramL = paramL
+        self.paramH = paramH
+        self.time = time
+
 class MouseInput(ctypes.Structure):
     _fields_ = [("dx",          ctypes.c_long),
                 ("dy",          ctypes.c_long),
@@ -78,7 +88,6 @@ user32.SendInput.argtypes = (wintypes.UINT, # nInputs
                              ctypes.c_int)  # cbSize
 
 # Functions
-
 def PressKey(hexKeyCode):
     extra = ctypes.c_ulong(0)
     ii_ = Input_I()
@@ -118,9 +127,31 @@ def ClickMouse():
     x = Input(ctypes.c_ulong(0), ii_)
     ctypes.windll.user32.SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
 
-#START OF AUTOMATED TESTS
+def TranslateRapFile(rapfile):
+    f = open("rapfiles/" + rapfile, "r")
+    lines = f.readlines()
+    #Split the csv
+    line_split = lines.split(",")
 
-#END OF AUTOMATED TESTS
+    msgid = ""
+    paramL = ""
+    paramH = ""
+    time = ""
+
+    for var in line_split:
+        temp = var.split('=')
+        if(temp[0] == "msgid"):
+            msgid = temp[1]
+        elif(temp[0] == "paramL"):
+            paramL = temp[1]
+        elif(temp[0] == "paramH"):
+            paramH = temp[1]
+        elif(temp[0] == "time"):
+            time = temp[1]
+    
+    #make sure all variables are assigned to something, else error
+    EVENT_LIST.append(RapEvent(msgid, paramL, paramH, time))
 
 if __name__ == "__main__":
+    TranslateRapFile("test.txt")
     print("sucess")
