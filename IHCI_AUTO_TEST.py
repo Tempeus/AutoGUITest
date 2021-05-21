@@ -112,15 +112,14 @@ def MoveMouse(x,y):
     command = Input(ctypes.c_ulong(0), ii_)
     ctypes.windll.user32.SendInput(1, ctypes.pointer(command), ctypes.sizeof(command))
 
-def ClickMouse():
-    #MousePress
+def PressMouse():
     extra = ctypes.c_ulong(0)
     ii_ = Input_I()
     ii_.mi = MouseInput(0, 0, 0, MOUSEEVENTF_LEFTDOWN, 0, ctypes.pointer(extra))
     x = Input(ctypes.c_ulong(0), ii_)
     ctypes.windll.user32.SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
 
-    #MouseRelease
+def ReleaseMouse():
     extra = ctypes.c_ulong(0)
     ii_ = Input_I()
     ii_.mi = MouseInput(0, 0, 0, MOUSEEVENTF_LEFTUP, 0, ctypes.pointer(extra))
@@ -131,27 +130,50 @@ def TranslateRapFile(rapfile):
     f = open("rapfiles/" + rapfile, "r")
     lines = f.readlines()
     #Split the csv
-    line_split = lines.split(",")
+    for line in lines:
+        line_split = line.split(",")
 
-    msgid = ""
-    paramL = ""
-    paramH = ""
-    time = ""
+        msgid = ""
+        paramL = 0
+        paramH = 0
+        time = 0
 
-    for var in line_split:
-        temp = var.split('=')
-        if(temp[0] == "msgid"):
-            msgid = temp[1]
-        elif(temp[0] == "paramL"):
-            paramL = temp[1]
-        elif(temp[0] == "paramH"):
-            paramH = temp[1]
-        elif(temp[0] == "time"):
-            time = temp[1]
+        for var in line_split:
+            temp = var.split('=')
+            if(temp[0] == "msgid"):
+                msgid = temp[1]
+            elif(temp[0] == "paramL"):
+                paramL = int(temp[1])
+            elif(temp[0] == "paramH"):
+                paramH = int(temp[1])
+            elif(temp[0] == "time"):
+                time = int(temp[1])
     
-    #make sure all variables are assigned to something, else error
-    EVENT_LIST.append(RapEvent(msgid, paramL, paramH, time))
+        #make sure all variables are assigned to something, else error
+        EVENT_LIST.append(RapEvent(msgid, paramL, paramH, time))
+
 
 if __name__ == "__main__":
     TranslateRapFile("test.txt")
+    systemtime = EVENT_LIST[0].time
+    for event in EVENT_LIST:
+        if "WM_LBUTTONDOWN" in event.msgid:
+            time.sleep(event.time - systemtime)
+            MoveMouse(event.paramL, event.paramH)
+            PressMouse()
+            systemtime = event.time
+        elif "WM_LBUTTONUP" in event.msgid:
+            time.sleep(event.time - systemtime)
+            MoveMouse(event.paramL, event.paramH)
+            ReleaseMouse()
+            systemtime = event.time
+        elif "WM_KEYDOWN" in event.msgid:
+            time.sleep(event.time - systemtime)
+            PressKey(event.paramL)
+            systemtime = event.time
+        elif "WM_KEYUP" in event.msgid:
+            time.sleep(event.time - systemtime)
+            ReleaseKey(event.paramL)
+            systemtime = event.time
+
     print("sucess")
